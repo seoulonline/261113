@@ -110,19 +110,19 @@
 
       .intro-overlay { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; overflow: hidden; background: #070707; }
       .intro-overlay[hidden] { display: none; }
-      .intro-frame { position: relative; width: min(100vw, calc(100vh * 1.7778)); aspect-ratio: 16 / 9; overflow: hidden; color: #0c0908; background: #ff4d1f; isolation: isolate; }
-      .intro-frame::before { position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 50% 42%, rgba(255, 133, 69, .4), transparent 55%), linear-gradient(115deg, rgba(235, 47, 21, .22), transparent 52%); content: ""; }
-      .intro-grid { position: absolute; inset: 0; opacity: .13; background-image: linear-gradient(rgba(25, 12, 9, .18) 1px, transparent 1px), linear-gradient(90deg, rgba(25, 12, 9, .18) 1px, transparent 1px); background-size: 6.25% 11.11%; }
+      .intro-frame { position: relative; width: min(100vw, calc(100vh * 1.7778)); aspect-ratio: 16 / 9; overflow: hidden; color: #151a22; background: #f2f1ed; isolation: isolate; }
+      .intro-frame::before { position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 50% 42%, rgba(255, 255, 255, .86), transparent 58%), linear-gradient(115deg, rgba(218, 223, 229, .18), transparent 52%); content: ""; }
+      .intro-grid { position: absolute; inset: 0; opacity: .2; background-image: radial-gradient(rgba(68, 87, 108, .55) .65px, transparent .75px); background-size: 14px 14px; }
       .intro-corner { position: absolute; z-index: 4; width: 18px; height: 18px; border-color: rgba(20, 12, 9, .68); }
       .intro-corner.tl { top: 4.5%; left: 3.2%; border-top: 1px solid; border-left: 1px solid; }
       .intro-corner.tr { top: 4.5%; right: 3.2%; border-top: 1px solid; border-right: 1px solid; }
       .intro-corner.bl { bottom: 5%; left: 3.2%; border-bottom: 1px solid; border-left: 1px solid; }
       .intro-corner.br { right: 3.2%; bottom: 5%; border-right: 1px solid; border-bottom: 1px solid; }
-      .intro-meta { position: absolute; z-index: 5; top: 5%; right: 5.2%; left: 5.2%; display: flex; justify-content: space-between; color: rgba(19, 12, 10, .72); font-size: clamp(7px, .75vw, 11px); font-weight: 800; letter-spacing: .17em; }
+      .intro-meta { position: absolute; z-index: 5; top: 5%; right: 5.2%; left: 5.2%; display: flex; justify-content: space-between; color: rgba(34, 45, 59, .68); font-size: clamp(7px, .75vw, 11px); font-weight: 800; letter-spacing: .17em; }
       .intro-meta-bottom { top: auto; right: 5.2%; bottom: 5.5%; left: 5.2%; align-items: center; font-size: clamp(6px, .65vw, 9px); font-weight: 650; letter-spacing: .12em; }
       .intro-meta-bottom span:last-child { text-align: right; }
-      .intro-progress { position: absolute; right: 21%; bottom: calc(5.5% + 4px); left: 21%; height: 1px; overflow: hidden; background: rgba(20, 12, 10, .2); }
-      .intro-progress::after { display: block; width: 100%; height: 100%; background: #17100d; content: ""; transform: scaleX(0); transform-origin: left; }
+      .intro-progress { position: absolute; right: 21%; bottom: calc(5.5% + 4px); left: 21%; height: 1px; overflow: hidden; background: rgba(34, 45, 59, .2); }
+      .intro-progress::after { display: block; width: 100%; height: 100%; background: #286cf2; content: ""; transform: scaleX(0); transform-origin: left; }
       .intro-overlay.is-playing .intro-progress::after { animation: intro-progress 15s linear both; }
       .intro-scene { position: absolute; inset: 13% 8% 15%; display: grid; align-content: center; justify-items: center; opacity: 0; text-align: center; }
       .intro-overlay.is-playing .intro-scene { animation-duration: 15s; animation-fill-mode: both; animation-timing-function: linear; }
@@ -133,41 +133,75 @@
       .intro-index { margin-bottom: 2.8vh; font-size: clamp(8px, .8vw, 12px); font-weight: 900; letter-spacing: .28em; }
       .intro-hero { margin: 0; font-size: clamp(64px, 17vw, 250px); font-weight: 1000; line-height: .78; letter-spacing: -.105em; }
       .intro-hero.tight { font-size: clamp(62px, 14vw, 205px); letter-spacing: -.09em; }
-      .intro-hero .outline { color: transparent; -webkit-text-stroke: 2px #100c0a; }
+      .intro-hero .outline { color: transparent; -webkit-text-stroke: 2px #286cf2; }
       .intro-subtitle { margin: 3vh 0 0; font-size: clamp(10px, 1.15vw, 17px); font-weight: 850; letter-spacing: .28em; }
-      .intro-stamp { position: absolute; top: 50%; left: 14%; width: clamp(80px, 13vw, 180px); aspect-ratio: 1; border: 1px solid rgba(17, 12, 10, .64); border-radius: 50%; display: grid; place-items: center; font-size: clamp(9px, 1vw, 15px); font-weight: 900; letter-spacing: .12em; transform: translateY(-50%) rotate(-18deg); }
-      .intro-orbit { position: absolute; top: 50%; left: 14%; width: clamp(80px, 13vw, 180px); aspect-ratio: 1; border: 1px dashed rgba(17, 12, 10, .48); border-radius: 50%; transform: translateY(-50%) rotate(28deg) scaleX(1.7); }
-      .intro-orbit::after { position: absolute; top: 14%; right: 4%; width: 9px; height: 9px; border-radius: 50%; background: #100c0a; content: ""; }
+      .intro-note { position: absolute; z-index: 2; color: #286cf2; font-family: "Segoe Print", "Comic Sans MS", cursive; font-size: clamp(10px, 1.05vw, 16px); font-style: italic; font-weight: 700; line-height: 1.3; letter-spacing: .01em; }
+      .intro-note.note-a { top: 22%; right: 15%; transform: rotate(7deg); }
+      .intro-note.note-b { bottom: 17%; left: 19%; color: #d34e48; transform: rotate(-7deg); }
+      .intro-scene-one .intro-note.note-b, .intro-scene-three .intro-note.note-b { right: 13%; bottom: 13%; left: auto; }
+      .intro-stamp { position: absolute; top: 50%; left: 14%; width: clamp(80px, 13vw, 180px); aspect-ratio: 1; border: 1px solid rgba(40, 108, 242, .56); border-radius: 50%; display: grid; place-items: center; color: #286cf2; font-size: clamp(9px, 1vw, 15px); font-weight: 900; letter-spacing: .12em; transform: translateY(-50%) rotate(-18deg); }
+      .intro-orbit { position: absolute; top: 50%; left: 14%; width: clamp(80px, 13vw, 180px); aspect-ratio: 1; border: 1px dashed rgba(40, 108, 242, .35); border-radius: 50%; transform: translateY(-50%) rotate(28deg) scaleX(1.7); }
+      .intro-orbit::after { position: absolute; top: 14%; right: 4%; width: 9px; height: 9px; border-radius: 50%; background: #286cf2; content: ""; }
+      .intro-overlay.is-playing .intro-scene-one .intro-orbit, .intro-overlay.is-playing .intro-scene-three .intro-orbit { animation: orbit-spin 12s linear infinite; }
+      .intro-overlay.is-playing .intro-stamp { animation: stamp-arrive .8s cubic-bezier(.16,1,.3,1) .2s both; }
       .intro-spring { position: relative; width: min(62%, 580px); height: clamp(50px, 9vw, 120px); margin: 0 auto 2vh; }
       .intro-spring svg { width: 100%; height: 100%; overflow: visible; }
-      .intro-spring path { stroke-dasharray: 960; stroke-dashoffset: 960; }
-      .intro-overlay.is-playing .intro-spring path { animation: spring-draw 4s cubic-bezier(.22,.7,.25,1) 3s both; }
-      .intro-spring circle { transform-box: fill-box; transform-origin: center; }
-      .intro-overlay.is-playing .intro-spring circle { animation: spring-bob .6s ease-in-out 6.3s 3 alternate; }
+      .intro-spring path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+      .intro-overlay.is-playing .intro-spring path { animation: spring-draw 2.8s cubic-bezier(.22,.7,.25,1) 3.2s both; stroke: #253345; }
+      .intro-spring circle { opacity: 0; transform-box: fill-box; transform-origin: center; }
+      .intro-overlay.is-playing .intro-spring circle { animation: spring-bob .9s cubic-bezier(.22,1,.36,1) 5.85s both; }
       .intro-equation { margin: 0; font-size: clamp(38px, 8.5vw, 126px); font-weight: 950; letter-spacing: -.075em; }
       .intro-equation small { margin-left: .1em; font-size: .28em; letter-spacing: .12em; vertical-align: .65em; }
       .intro-energy { display: flex; align-items: center; gap: clamp(13px, 3vw, 46px); margin-top: 3vh; font-size: clamp(16px, 3.1vw, 44px); font-weight: 900; letter-spacing: -.055em; }
       .intro-energy .arrow { font-size: .7em; }
       .intro-energy-bars { display: flex; width: min(55%, 440px); height: clamp(12px, 2vw, 28px); gap: 5px; margin-top: 2.5vh; }
-      .intro-energy-bars i { flex: 1; border: 1px solid rgba(13, 9, 8, .78); background: #120e0c; transform: scaleX(.05); }
-      .intro-overlay.is-playing .intro-energy-bars i { animation: energy-bar .55s cubic-bezier(.2,.8,.2,1) 7.4s infinite alternate; }
-      .intro-overlay.is-playing .intro-energy-bars i:nth-child(2n) { animation-delay: 7.65s; }
-      .intro-overlay.is-playing .intro-energy-bars i:nth-child(3n) { animation-delay: 7.85s; }
-      .intro-final-mark { display: grid; width: clamp(44px, 6vw, 84px); aspect-ratio: 1; place-items: center; margin-bottom: 3vh; border: 1px solid #120e0c; border-radius: 14px; font-size: clamp(20px, 3vw, 42px); font-weight: 950; transform: rotate(-8deg) scale(.6); }
-      .intro-overlay.is-playing .intro-final-mark { animation: mark-pop .65s cubic-bezier(.2,1.5,.4,1) 11.15s both; }
+      .intro-energy-bars i { flex: 1; border: 1px solid rgba(40, 108, 242, .72); background: #286cf2; transform: scaleX(.05); transform-origin: left; }
+      .intro-overlay.is-playing .intro-energy-bars i { animation: energy-bar .7s cubic-bezier(.22,1,.36,1) 7.45s both; }
+      .intro-overlay.is-playing .intro-energy-bars i:nth-child(2n) { animation-delay: 7.58s; }
+      .intro-overlay.is-playing .intro-energy-bars i:nth-child(3n) { animation-delay: 7.72s; }
+      .intro-scene-four { inset: 10% 6% 12%; padding: 3% 2%; color: #f2f1ed; background: #151922; }
+      .intro-final-mark { display: grid; width: clamp(44px, 6vw, 84px); aspect-ratio: 1; place-items: center; margin-bottom: 3vh; border: 1px solid rgba(242, 241, 237, .64); border-radius: 14px; color: #f2f1ed; font-size: clamp(20px, 3vw, 42px); font-weight: 950; transform: rotate(-8deg) scale(.6); }
+      .intro-overlay.is-playing .intro-final-mark { animation: mark-pop .8s cubic-bezier(.16,1,.3,1) 11.15s both; }
       .intro-final-title { margin: 0; font-size: clamp(45px, 10vw, 145px); font-weight: 1000; line-height: .9; letter-spacing: -.095em; }
-      .intro-final-sub { margin: 2vh 0 0; font-size: clamp(9px, 1.1vw, 16px); font-weight: 850; letter-spacing: .29em; }
-      .intro-skip { position: absolute; z-index: 7; top: 9%; right: 5.2%; padding: 8px 11px; border: 1px solid rgba(19, 12, 10, .42); border-radius: 999px; color: #160e0b; background: rgba(255, 208, 184, .17); font-size: clamp(8px, .75vw, 11px); font-weight: 800; letter-spacing: .08em; cursor: pointer; }
-      .intro-skip:hover { background: rgba(255, 230, 215, .42); }
+      .intro-final-sub { margin: 2vh 0 0; color: #8eafff; font-size: clamp(9px, 1.1vw, 16px); font-weight: 850; letter-spacing: .29em; }
+      .intro-skip { position: absolute; z-index: 7; top: 9%; right: 5.2%; padding: 8px 11px; border: 1px solid rgba(242, 241, 237, .65); border-radius: 999px; color: #f2f1ed; background: #151922; font-size: clamp(8px, .75vw, 11px); font-weight: 800; letter-spacing: .08em; cursor: pointer; }
+      .intro-skip:hover { background: #286cf2; }
       @keyframes intro-progress { to { transform: scaleX(1); } }
-      @keyframes intro-scene-one { 0%, 3% { opacity: 0; transform: translateY(4vh) scale(.92); filter: blur(8px); } 8%, 17% { opacity: 1; transform: none; filter: blur(0); } 22%, 100% { opacity: 0; transform: translateY(-4vh) scale(1.04); filter: blur(6px); } }
-      @keyframes intro-scene-two { 0%, 21% { opacity: 0; transform: translateX(5vw) skewX(-5deg); filter: blur(8px); } 27%, 42% { opacity: 1; transform: none; filter: blur(0); } 47%, 100% { opacity: 0; transform: translateX(-4vw); filter: blur(6px); } }
-      @keyframes intro-scene-three { 0%, 46% { opacity: 0; transform: scale(.88); filter: blur(8px); } 52%, 68% { opacity: 1; transform: none; filter: blur(0); } 74%, 100% { opacity: 0; transform: scale(1.08); filter: blur(5px); } }
-      @keyframes intro-scene-four { 0%, 72% { opacity: 0; transform: translateY(3vh) scale(.93); filter: blur(8px); } 78%, 96% { opacity: 1; transform: none; filter: blur(0); } 100% { opacity: 0; transform: scale(1.03); filter: blur(3px); } }
+      @keyframes intro-scene-one {
+        0%, 3% { opacity: 0; transform: translateY(4vh) scale(.92); filter: blur(8px); animation-timing-function: cubic-bezier(.16,1,.3,1); }
+        8% { opacity: 1; transform: none; filter: blur(0); animation-timing-function: linear; }
+        17% { opacity: 1; transform: none; filter: blur(0); animation-timing-function: cubic-bezier(.76,0,.24,1); }
+        22%, 100% { opacity: 0; transform: translateY(-4vh) scale(1.04); filter: blur(6px); }
+      }
+      @keyframes intro-scene-two {
+        0%, 21% { opacity: 0; transform: translateX(5vw) skewX(-5deg); filter: blur(8px); animation-timing-function: cubic-bezier(.16,1,.3,1); }
+        27% { opacity: 1; transform: none; filter: blur(0); animation-timing-function: linear; }
+        42% { opacity: 1; transform: none; filter: blur(0); animation-timing-function: cubic-bezier(.76,0,.24,1); }
+        47%, 100% { opacity: 0; transform: translateX(-4vw); filter: blur(6px); }
+      }
+      @keyframes intro-scene-three {
+        0%, 46% { opacity: 0; transform: scale(.88); filter: blur(8px); animation-timing-function: cubic-bezier(.16,1,.3,1); }
+        52% { opacity: 1; transform: none; filter: blur(0); animation-timing-function: linear; }
+        68% { opacity: 1; transform: none; filter: blur(0); animation-timing-function: cubic-bezier(.76,0,.24,1); }
+        74%, 100% { opacity: 0; transform: scale(1.08); filter: blur(5px); }
+      }
+      @keyframes intro-scene-four {
+        0%, 72% { opacity: 0; transform: translateY(3vh) scale(.93); filter: blur(8px); animation-timing-function: cubic-bezier(.16,1,.3,1); }
+        78% { opacity: 1; transform: none; filter: blur(0); animation-timing-function: linear; }
+        100% { opacity: 1; transform: none; filter: blur(0); }
+      }
       @keyframes spring-draw { to { stroke-dashoffset: 0; } }
-      @keyframes spring-bob { to { transform: translateX(12px); } }
+      @keyframes spring-bob {
+        0% { opacity: 0; transform: translateX(-8px); }
+        28% { opacity: 1; transform: translateX(0); }
+        56% { opacity: 1; transform: translateX(8px); }
+        78% { transform: translateX(-3px); }
+        100% { opacity: 1; transform: translateX(0); }
+      }
       @keyframes energy-bar { to { transform: scaleX(1); } }
-      @keyframes mark-pop { to { transform: rotate(0) scale(1); } }
+      @keyframes mark-pop { from { opacity: 0; transform: rotate(-8deg) scale(.6); } to { opacity: 1; transform: rotate(0) scale(1); } }
+      @keyframes orbit-spin { to { transform: translateY(-50%) rotate(388deg) scaleX(1.7); } }
+      @keyframes stamp-arrive { from { opacity: 0; transform: translateY(-50%) rotate(16deg) scale(.6); } to { opacity: 1; transform: translateY(-50%) rotate(-18deg) scale(1); } }
 
       @media (max-width: 620px) {
         .app { width: min(100% - 22px, 420px); padding-top: 18px; }
@@ -294,6 +328,8 @@
           <span class="intro-index">01 &nbsp; / &nbsp; THE INVISIBLE, IN MOTION</span>
           <h2 class="intro-hero">진동<span class="outline">.</span></h2>
           <p class="intro-subtitle">움직임을 만드는 보이지 않는 힘</p>
+          <span class="intro-note note-a">진폭 A<br>← · →</span>
+          <span class="intro-note note-b">평형점에서<br>속력 최대</span>
           <span class="intro-stamp" aria-hidden="true">MOTION<br>LAB</span>
           <span class="intro-orbit" aria-hidden="true"></span>
         </section>
@@ -301,13 +337,15 @@
           <span class="intro-index">02 &nbsp; / &nbsp; RESTORING FORCE</span>
           <div class="intro-spring" aria-hidden="true">
             <svg viewBox="0 0 760 130">
-              <path d="M12 65h70l18-43 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 18-43h22" fill="none" stroke="#120e0c" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter"/>
-              <circle cx="716" cy="65" r="29" fill="#120e0c"/>
-              <circle cx="706" cy="55" r="7" fill="#ffb193"/>
+              <path pathLength="1" d="M12 65h70l18-43 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 18-43h22" fill="none" stroke="#120e0c" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter"/>
+              <circle cx="716" cy="65" r="29" fill="#286cf2"/>
+              <circle cx="706" cy="55" r="7" fill="#cfe0ff"/>
             </svg>
           </div>
           <h2 class="intro-equation">F = −kx<small>HOOKE'S LAW</small></h2>
           <p class="intro-subtitle">변위의 반대 방향, 평형을 향하는 힘</p>
+          <span class="intro-note note-a">복원력</span>
+          <span class="intro-note note-b">반대 방향 ↙</span>
         </section>
         <section class="intro-scene intro-scene-three">
           <span class="intro-index">03 &nbsp; / &nbsp; ENERGY IN TRANSFER</span>
@@ -315,6 +353,8 @@
           <div class="intro-energy"><span>운동 에너지</span><span class="arrow">⇄</span><span>위치 에너지</span></div>
           <div class="intro-energy-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           <p class="intro-subtitle">형태는 바뀌어도, 역학적 에너지는 보존된다</p>
+          <span class="intro-note note-a">K + U = E</span>
+          <span class="intro-note note-b">합은 일정</span>
           <span class="intro-orbit" aria-hidden="true"></span>
         </section>
         <section class="intro-scene intro-scene-four">
