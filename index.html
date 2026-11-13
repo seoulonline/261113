@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#090b14">
+    <title>진동 연구소 — 역학 탐구 게임</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #090b14;
+        color: #f3f4ff;
+        font-synthesis: none;
+        font-optical-sizing: auto;
+        --panel: rgba(20, 23, 40, .88);
+        --muted: #8d91ad;
+        --line: rgba(177, 184, 255, .12);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
+        background:
+          radial-gradient(ellipse at 50% 8%, rgba(86, 66, 197, .2), transparent 44%),
+          radial-gradient(ellipse at 90% 75%, rgba(38, 156, 177, .08), transparent 34%),
+          #090b14;
+      }
+      button { font: inherit; }
+      .app { width: min(100% - 32px, 940px); margin: 0 auto; padding: 32px 0 24px; }
+      header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .logo {
+        display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid rgba(164, 144, 255, .34);
+        border-radius: 13px; color: #c4b5fd; background: linear-gradient(145deg, #30265a, #17162d);
+        box-shadow: 0 6px 24px rgba(107, 78, 221, .2);
+      }
+      .logo svg { width: 23px; height: 23px; }
+      h1 { margin: 0; font-size: 17px; letter-spacing: -.03em; }
+      .tagline { margin: 3px 0 0; color: var(--muted); font-size: 11px; letter-spacing: .13em; text-transform: uppercase; }
+      .header-pill { padding: 8px 11px; border: 1px solid var(--line); border-radius: 999px; color: #adafc8; font-size: 11px; }
+      .header-actions { display: flex; align-items: center; gap: 9px; }
+      .intro-trigger { padding: 8px 11px; border: 1px solid rgba(255, 104, 57, .38); border-radius: 999px; color: #ff9a76; background: rgba(255, 91, 48, .08); font-size: 10px; font-weight: 750; cursor: pointer; }
+      .intro-trigger:hover { border-color: rgba(255, 132, 91, .75); background: rgba(255, 91, 48, .16); }
+
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 226px; gap: 16px; max-width: 680px; margin: auto; }
+      .game-panel, .side-panel { border: 1px solid var(--line); border-radius: 20px; background: var(--panel); box-shadow: 0 18px 60px rgba(0, 0, 0, .24); }
+      .game-panel { padding: 16px; }
+      .top-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+      .stat { min-width: 0; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); }
+      .stat-label { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+      .stat-value { display: block; margin-top: 3px; font-size: 20px; font-variant-numeric: tabular-nums; font-weight: 750; letter-spacing: -.04em; }
+      .board-wrap { position: relative; width: min(100%, 300px); margin: 0 auto; overflow: hidden; border: 1px solid rgba(169, 174, 231, .16); border-radius: 10px; background: #0c0f1b; }
+      .board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; padding: 5px; }
+      .cell { aspect-ratio: 1; border: 1px solid rgba(157, 164, 220, .045); border-radius: 3px; background: rgba(255,255,255,.018); }
+      .cell.filled { border-color: color-mix(in srgb, var(--block-color), white 22%); background: linear-gradient(145deg, color-mix(in srgb, var(--block-color), white 18%), var(--block-color) 72%); box-shadow: inset 0 1px 2px rgba(255,255,255,.22), 0 1px 5px color-mix(in srgb, var(--block-color), transparent 65%); }
+      .cell.ghost { border: 1px solid color-mix(in srgb, var(--block-color), transparent 15%); background: color-mix(in srgb, var(--block-color), transparent 86%); box-shadow: none; }
+      .game-overlay { position: absolute; inset: 5px; z-index: 1; display: grid; place-items: center; padding: 22px; border-radius: 7px; background: rgba(8, 10, 20, .79); text-align: center; backdrop-filter: blur(5px); }
+      .game-overlay[hidden] { display: none; }
+      .overlay-card h2 { margin: 0 0 7px; font-size: 22px; letter-spacing: -.04em; }
+      .overlay-card p { margin: 0 0 17px; color: #a4a7c0; font-size: 12px; line-height: 1.65; }
+      .primary, .icon-button, .control-button {
+        border: 1px solid rgba(185, 164, 255, .24); color: #f5f2ff; background: linear-gradient(135deg, #7657dc, #5943b1);
+        box-shadow: 0 5px 16px rgba(104, 76, 195, .2); cursor: pointer; transition: transform .14s, filter .14s, border-color .14s;
+      }
+      .primary { padding: 10px 18px; border-radius: 10px; font-size: 12px; font-weight: 750; }
+      .primary:hover, .icon-button:hover, .control-button:hover { filter: brightness(1.14); transform: translateY(-1px); }
+      button:focus-visible { outline: 2px solid #c4b5fd; outline-offset: 3px; }
+      .side-panel { display: flex; flex-direction: column; gap: 12px; padding: 14px; }
+      .side-card { padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.025); }
+      .card-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; color: #c2c4dc; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+      .physics-card .card-heading { margin-bottom: 5px; }
+      .oscillator { height: 48px; }
+      .oscillator svg { width: 100%; height: 100%; overflow: visible; }
+      .energy-row { display: flex; justify-content: space-between; align-items: center; margin-top: 7px; color: #a6a9c2; font-size: 9px; }
+      .energy-row strong { color: #e3e3f2; font-size: 9px; font-variant-numeric: tabular-nums; }
+      .energy-dot { display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; vertical-align: 1px; }
+      .energy-dot.potential { background: #b18cff; }
+      .energy-dot.kinetic { background: #45d7e8; }
+      .energy-track { height: 4px; margin-top: 4px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.07); }
+      .energy-track span { display: block; width: 0; height: 100%; border-radius: inherit; transition: width .12s linear; }
+      .potential-fill { background: #b18cff; }
+      .kinetic-fill { background: #45d7e8; }
+      .energy-total { margin: 8px 0 0; color: #888da8; font-size: 9px; text-align: center; }
+      .concept-title { margin: 0 0 6px; color: #f0ecff; font-size: 14px; letter-spacing: -.02em; }
+      .concept-formula { margin: 0 0 7px; color: #c5adff; font-size: 15px; font-weight: 750; letter-spacing: .01em; }
+      .concept-copy { min-height: 48px; margin: 0; color: #a4a7c0; font-size: 10px; line-height: 1.65; }
+      .concept-next { width: 100%; min-height: 32px; margin-top: 9px; }
+      .source-note { margin: 8px 0 0; color: #70758e; font-size: 8px; text-align: center; }
+      .mini-board { display: grid; grid-template-columns: repeat(4, 17px); grid-auto-rows: 17px; gap: 3px; justify-content: center; min-height: 73px; align-content: center; }
+      .mini-cell { border: 1px solid rgba(157, 164, 220, .05); border-radius: 3px; background: rgba(255,255,255,.018); }
+      .mini-cell.filled { border-color: color-mix(in srgb, var(--block-color), white 22%); background: var(--block-color); }
+      .mini-stack { display: grid; gap: 4px; }
+      .next-row { display: flex; align-items: center; justify-content: center; min-height: 40px; }
+      .next-row .mini-board { grid-auto-rows: 11px; grid-template-columns: repeat(4, 11px); min-height: auto; }
+      .next-row .mini-cell { border-radius: 2px; }
+      .side-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .icon-button { min-height: 39px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+      .icon-button.secondary { border-color: var(--line); background: rgba(255,255,255,.045); box-shadow: none; color: #c4c6de; }
+      .key-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; color: #a2a5be; font-size: 11px; }
+      .key-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      kbd { min-width: 25px; padding: 3px 5px; border: 1px solid rgba(174,180,230,.16); border-radius: 5px; background: rgba(255,255,255,.045); color: #dcdeef; font: inherit; font-size: 9px; text-align: center; }
+      .tips { margin: 0; color: #8d91ad; font-size: 10px; line-height: 1.6; }
+      .mobile-controls { display: none; }
+      footer { margin-top: 18px; color: #71758f; font-size: 10px; text-align: center; }
+      footer span { color: #a5a0d4; }
+
+      .intro-overlay { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; overflow: hidden; background: #070707; }
+      .intro-overlay[hidden] { display: none; }
+      .intro-frame { position: relative; width: min(100vw, calc(100vh * 1.7778)); aspect-ratio: 16 / 9; overflow: hidden; color: #0c0908; background: #ff4d1f; isolation: isolate; }
+      .intro-frame::before { position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 50% 42%, rgba(255, 133, 69, .4), transparent 55%), linear-gradient(115deg, rgba(235, 47, 21, .22), transparent 52%); content: ""; }
+      .intro-grid { position: absolute; inset: 0; opacity: .13; background-image: linear-gradient(rgba(25, 12, 9, .18) 1px, transparent 1px), linear-gradient(90deg, rgba(25, 12, 9, .18) 1px, transparent 1px); background-size: 6.25% 11.11%; }
+      .intro-corner { position: absolute; z-index: 4; width: 18px; height: 18px; border-color: rgba(20, 12, 9, .68); }
+      .intro-corner.tl { top: 4.5%; left: 3.2%; border-top: 1px solid; border-left: 1px solid; }
+      .intro-corner.tr { top: 4.5%; right: 3.2%; border-top: 1px solid; border-right: 1px solid; }
+      .intro-corner.bl { bottom: 5%; left: 3.2%; border-bottom: 1px solid; border-left: 1px solid; }
+      .intro-corner.br { right: 3.2%; bottom: 5%; border-right: 1px solid; border-bottom: 1px solid; }
+      .intro-meta { position: absolute; z-index: 5; top: 5%; right: 5.2%; left: 5.2%; display: flex; justify-content: space-between; color: rgba(19, 12, 10, .72); font-size: clamp(7px, .75vw, 11px); font-weight: 800; letter-spacing: .17em; }
+      .intro-meta-bottom { top: auto; right: 5.2%; bottom: 5.5%; left: 5.2%; align-items: center; font-size: clamp(6px, .65vw, 9px); font-weight: 650; letter-spacing: .12em; }
+      .intro-meta-bottom span:last-child { text-align: right; }
+      .intro-progress { position: absolute; right: 21%; bottom: calc(5.5% + 4px); left: 21%; height: 1px; overflow: hidden; background: rgba(20, 12, 10, .2); }
+      .intro-progress::after { display: block; width: 100%; height: 100%; background: #17100d; content: ""; transform: scaleX(0); transform-origin: left; }
+      .intro-overlay.is-playing .intro-progress::after { animation: intro-progress 15s linear both; }
+      .intro-scene { position: absolute; inset: 13% 8% 15%; display: grid; align-content: center; justify-items: center; opacity: 0; text-align: center; }
+      .intro-overlay.is-playing .intro-scene { animation-duration: 15s; animation-fill-mode: both; animation-timing-function: linear; }
+      .intro-overlay.is-playing .intro-scene-one { animation-name: intro-scene-one; }
+      .intro-overlay.is-playing .intro-scene-two { animation-name: intro-scene-two; }
+      .intro-overlay.is-playing .intro-scene-three { animation-name: intro-scene-three; }
+      .intro-overlay.is-playing .intro-scene-four { animation-name: intro-scene-four; }
+      .intro-index { margin-bottom: 2.8vh; font-size: clamp(8px, .8vw, 12px); font-weight: 900; letter-spacing: .28em; }
+      .intro-hero { margin: 0; font-size: clamp(64px, 17vw, 250px); font-weight: 1000; line-height: .78; letter-spacing: -.105em; }
+      .intro-hero.tight { font-size: clamp(62px, 14vw, 205px); letter-spacing: -.09em; }
+      .intro-hero .outline { color: transparent; -webkit-text-stroke: 2px #100c0a; }
+      .intro-subtitle { margin: 3vh 0 0; font-size: clamp(10px, 1.15vw, 17px); font-weight: 850; letter-spacing: .28em; }
+      .intro-stamp { position: absolute; top: 50%; left: 14%; width: clamp(80px, 13vw, 180px); aspect-ratio: 1; border: 1px solid rgba(17, 12, 10, .64); border-radius: 50%; display: grid; place-items: center; font-size: clamp(9px, 1vw, 15px); font-weight: 900; letter-spacing: .12em; transform: translateY(-50%) rotate(-18deg); }
+      .intro-orbit { position: absolute; top: 50%; left: 14%; width: clamp(80px, 13vw, 180px); aspect-ratio: 1; border: 1px dashed rgba(17, 12, 10, .48); border-radius: 50%; transform: translateY(-50%) rotate(28deg) scaleX(1.7); }
+      .intro-orbit::after { position: absolute; top: 14%; right: 4%; width: 9px; height: 9px; border-radius: 50%; background: #100c0a; content: ""; }
+      .intro-spring { position: relative; width: min(62%, 580px); height: clamp(50px, 9vw, 120px); margin: 0 auto 2vh; }
+      .intro-spring svg { width: 100%; height: 100%; overflow: visible; }
+      .intro-spring path { stroke-dasharray: 960; stroke-dashoffset: 960; }
+      .intro-overlay.is-playing .intro-spring path { animation: spring-draw 4s cubic-bezier(.22,.7,.25,1) 3s both; }
+      .intro-spring circle { transform-box: fill-box; transform-origin: center; }
+      .intro-overlay.is-playing .intro-spring circle { animation: spring-bob .6s ease-in-out 6.3s 3 alternate; }
+      .intro-equation { margin: 0; font-size: clamp(38px, 8.5vw, 126px); font-weight: 950; letter-spacing: -.075em; }
+      .intro-equation small { margin-left: .1em; font-size: .28em; letter-spacing: .12em; vertical-align: .65em; }
+      .intro-energy { display: flex; align-items: center; gap: clamp(13px, 3vw, 46px); margin-top: 3vh; font-size: clamp(16px, 3.1vw, 44px); font-weight: 900; letter-spacing: -.055em; }
+      .intro-energy .arrow { font-size: .7em; }
+      .intro-energy-bars { display: flex; width: min(55%, 440px); height: clamp(12px, 2vw, 28px); gap: 5px; margin-top: 2.5vh; }
+      .intro-energy-bars i { flex: 1; border: 1px solid rgba(13, 9, 8, .78); background: #120e0c; transform: scaleX(.05); }
+      .intro-overlay.is-playing .intro-energy-bars i { animation: energy-bar .55s cubic-bezier(.2,.8,.2,1) 7.4s infinite alternate; }
+      .intro-overlay.is-playing .intro-energy-bars i:nth-child(2n) { animation-delay: 7.65s; }
+      .intro-overlay.is-playing .intro-energy-bars i:nth-child(3n) { animation-delay: 7.85s; }
+      .intro-final-mark { display: grid; width: clamp(44px, 6vw, 84px); aspect-ratio: 1; place-items: center; margin-bottom: 3vh; border: 1px solid #120e0c; border-radius: 14px; font-size: clamp(20px, 3vw, 42px); font-weight: 950; transform: rotate(-8deg) scale(.6); }
+      .intro-overlay.is-playing .intro-final-mark { animation: mark-pop .65s cubic-bezier(.2,1.5,.4,1) 11.15s both; }
+      .intro-final-title { margin: 0; font-size: clamp(45px, 10vw, 145px); font-weight: 1000; line-height: .9; letter-spacing: -.095em; }
+      .intro-final-sub { margin: 2vh 0 0; font-size: clamp(9px, 1.1vw, 16px); font-weight: 850; letter-spacing: .29em; }
+      .intro-skip { position: absolute; z-index: 7; top: 9%; right: 5.2%; padding: 8px 11px; border: 1px solid rgba(19, 12, 10, .42); border-radius: 999px; color: #160e0b; background: rgba(255, 208, 184, .17); font-size: clamp(8px, .75vw, 11px); font-weight: 800; letter-spacing: .08em; cursor: pointer; }
+      .intro-skip:hover { background: rgba(255, 230, 215, .42); }
+      @keyframes intro-progress { to { transform: scaleX(1); } }
+      @keyframes intro-scene-one { 0%, 3% { opacity: 0; transform: translateY(4vh) scale(.92); filter: blur(8px); } 8%, 17% { opacity: 1; transform: none; filter: blur(0); } 22%, 100% { opacity: 0; transform: translateY(-4vh) scale(1.04); filter: blur(6px); } }
+      @keyframes intro-scene-two { 0%, 21% { opacity: 0; transform: translateX(5vw) skewX(-5deg); filter: blur(8px); } 27%, 42% { opacity: 1; transform: none; filter: blur(0); } 47%, 100% { opacity: 0; transform: translateX(-4vw); filter: blur(6px); } }
+      @keyframes intro-scene-three { 0%, 46% { opacity: 0; transform: scale(.88); filter: blur(8px); } 52%, 68% { opacity: 1; transform: none; filter: blur(0); } 74%, 100% { opacity: 0; transform: scale(1.08); filter: blur(5px); } }
+      @keyframes intro-scene-four { 0%, 72% { opacity: 0; transform: translateY(3vh) scale(.93); filter: blur(8px); } 78%, 96% { opacity: 1; transform: none; filter: blur(0); } 100% { opacity: 0; transform: scale(1.03); filter: blur(3px); } }
+      @keyframes spring-draw { to { stroke-dashoffset: 0; } }
+      @keyframes spring-bob { to { transform: translateX(12px); } }
+      @keyframes energy-bar { to { transform: scaleX(1); } }
+      @keyframes mark-pop { to { transform: rotate(0) scale(1); } }
+
+      @media (max-width: 620px) {
+        .app { width: min(100% - 22px, 420px); padding-top: 18px; }
+        header { margin-bottom: 14px; }
+        .header-actions { gap: 5px; }
+        .header-pill { display: none; }
+        .intro-trigger { padding: 8px 9px; font-size: 9px; }
+        .layout { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+        .game-panel { padding: 11px; border-radius: 16px; }
+        .top-stats { margin-bottom: 9px; }
+        .stat { padding: 8px 11px; }
+        .stat-value { font-size: 17px; }
+        .board-wrap { width: min(100%, 290px); }
+        .side-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; padding: 10px; }
+        .side-card { padding: 10px; }
+        .side-card.physics-card, .side-card.concept-card { grid-column: span 2; }
+        .side-card.controls-card { display: none; }
+        .side-card.next-card { grid-column: span 2; }
+        .mini-stack { grid-template-columns: repeat(3, 1fr); }
+        .next-row { min-height: 34px; }
+        .mobile-controls { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 10px; }
+        .control-button { height: 43px; border-radius: 11px; font-size: 17px; font-weight: 700; touch-action: manipulation; }
+        .control-button.action { font-size: 10px; }
+        footer { margin-top: 12px; }
+      }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z" opacity=".9"/></svg>
+          </div>
+          <div><h1>진동 연구소</h1><p class="tagline">Mechanics lab</p></div>
+        </div>
+        <div class="header-actions">
+          <div class="header-pill">역학 탐구 모드</div>
+          <button class="intro-trigger" id="intro-button" type="button">15초 인트로 재생 ↗</button>
+        </div>
+      </header>
+
+      <section class="layout" aria-label="진동 연구소 게임">
+        <div class="game-panel">
+          <div class="top-stats">
+            <div class="stat"><span class="stat-label">점수</span><strong class="stat-value" id="score">0</strong></div>
+            <div class="stat"><span class="stat-label">최고 기록</span><strong class="stat-value" id="best">0</strong></div>
+          </div>
+          <div class="board-wrap">
+            <div class="board" id="board" role="grid" aria-label="게임 보드"></div>
+            <div class="game-overlay" id="overlay">
+              <div class="overlay-card">
+                <h2 id="overlay-title">탐구를 시작할까요?</h2>
+                <p id="overlay-copy">블록을 쌓아 진동의 원리를 발견해요.<br>줄을 지울 때마다 새 개념이 열립니다.</p>
+                <button class="primary" id="start-button" type="button">탐구 시작</button>
+              </div>
+            </div>
+          </div>
+          <div class="mobile-controls" aria-label="터치 조작">
+            <button class="control-button" data-action="left" aria-label="왼쪽">←</button>
+            <button class="control-button" data-action="rotate" aria-label="회전">↻</button>
+            <button class="control-button" data-action="down" aria-label="아래">↓</button>
+            <button class="control-button" data-action="drop" aria-label="빠르게 내리기">⇊</button>
+            <button class="control-button action" data-action="hold" aria-label="블록 보관">보관</button>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <section class="side-card"><div class="card-heading"><span>레벨</span><span id="lines-label">0줄</span></div><strong class="stat-value" id="level">01</strong></section>
+          <section class="side-card physics-card">
+            <div class="card-heading"><span>진동 관측기</span><span>SHM</span></div>
+            <div class="oscillator" role="img" aria-label="용수철 진동 모형">
+              <svg viewBox="0 0 180 48" aria-hidden="true">
+                <path d="M8 24h24l5-8 9 16 9-16 9 16 9-16 9 16 9-16 9 16 5-8h6" fill="none" stroke="#74809f" stroke-width="2" stroke-linejoin="round"/>
+                <line x1="120" y1="8" x2="120" y2="40" stroke="#7f83a5" stroke-dasharray="3 3" opacity=".65"/>
+                <line x1="116" y1="24" x2="124" y2="24" stroke="#afb1c9" opacity=".7"/>
+                <circle id="oscillator-mass" cx="120" cy="24" r="7" fill="#b18cff" stroke="#e1d5ff" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="energy-row"><span><i class="energy-dot potential"></i> 위치 에너지 U</span><strong id="potential-value">100%</strong></div>
+            <div class="energy-track"><span class="potential-fill" id="potential-bar"></span></div>
+            <div class="energy-row"><span><i class="energy-dot kinetic"></i> 운동 에너지 K</span><strong id="kinetic-value">0%</strong></div>
+            <div class="energy-track"><span class="kinetic-fill" id="kinetic-bar"></span></div>
+            <p class="energy-total">역학적 에너지 E = K + U (일정)</p>
+          </section>
+          <section class="side-card concept-card">
+            <div class="card-heading"><span>교과서 개념</span><span id="concept-count">01 / 05</span></div>
+            <h2 class="concept-title" id="concept-title">복원력</h2>
+            <div class="concept-formula" id="concept-formula">F = −kx</div>
+            <p class="concept-copy" id="concept-copy">용수철의 힘은 변위와 반대 방향으로 작용해 물체를 평형 위치로 되돌립니다.</p>
+            <button class="icon-button secondary concept-next" id="concept-next" type="button">다음 개념 →</button>
+            <p class="source-note">심화 물리 · I. 역학 탐구 · 70–79쪽</p>
+          </section>
+          <section class="side-card"><div class="card-heading">보관</div><div class="mini-board" id="hold-preview" aria-label="보관한 블록 없음"></div></section>
+          <section class="side-card next-card"><div class="card-heading">다음 블록</div><div class="mini-stack" id="next-preview"></div></section>
+          <section class="side-card controls-card">
+            <div class="card-heading">조작 방법</div>
+            <ul class="key-list">
+              <li><span>이동</span><span><kbd>←</kbd> <kbd>→</kbd></span></li>
+              <li><span>회전</span><kbd>↑</kbd></li>
+              <li><span>빠르게 내리기</span><kbd>↓</kbd></li>
+              <li><span>즉시 떨어뜨리기</span><kbd>Space</kbd></li>
+              <li><span>블록 보관</span><kbd>C</kbd></li>
+              <li><span>일시정지</span><kbd>P</kbd></li>
+            </ul>
+          </section>
+          <div class="side-actions">
+            <button class="icon-button" id="pause-button" type="button">일시정지</button>
+            <button class="icon-button secondary" id="restart-button" type="button">다시 시작</button>
+          </div>
+        </aside>
+      </section>
+      <footer>블록을 쌓으며 단조화 운동과 에너지 보존을 탐구해요 <span>✦</span></footer>
+    </main>
+    <div class="intro-overlay" id="intro-overlay" role="dialog" aria-modal="true" aria-label="15초 진동 연구소 인트로" hidden>
+      <div class="intro-frame">
+        <div class="intro-grid" aria-hidden="true"></div>
+        <i class="intro-corner tl" aria-hidden="true"></i><i class="intro-corner tr" aria-hidden="true"></i>
+        <i class="intro-corner bl" aria-hidden="true"></i><i class="intro-corner br" aria-hidden="true"></i>
+        <div class="intro-meta"><span>MECHANICS / MOTION STUDY</span><span>FIELD NOTES&nbsp; · &nbsp;01—05</span></div>
+        <button class="intro-skip" id="intro-close" type="button">건너뛰기&nbsp; ↗</button>
+        <section class="intro-scene intro-scene-one">
+          <span class="intro-index">01 &nbsp; / &nbsp; THE INVISIBLE, IN MOTION</span>
+          <h2 class="intro-hero">진동<span class="outline">.</span></h2>
+          <p class="intro-subtitle">움직임을 만드는 보이지 않는 힘</p>
+          <span class="intro-stamp" aria-hidden="true">MOTION<br>LAB</span>
+          <span class="intro-orbit" aria-hidden="true"></span>
+        </section>
+        <section class="intro-scene intro-scene-two">
+          <span class="intro-index">02 &nbsp; / &nbsp; RESTORING FORCE</span>
+          <div class="intro-spring" aria-hidden="true">
+            <svg viewBox="0 0 760 130">
+              <path d="M12 65h70l18-43 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 38-86 38 86 18-43h22" fill="none" stroke="#120e0c" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter"/>
+              <circle cx="716" cy="65" r="29" fill="#120e0c"/>
+              <circle cx="706" cy="55" r="7" fill="#ffb193"/>
+            </svg>
+          </div>
+          <h2 class="intro-equation">F = −kx<small>HOOKE'S LAW</small></h2>
+          <p class="intro-subtitle">변위의 반대 방향, 평형을 향하는 힘</p>
+        </section>
+        <section class="intro-scene intro-scene-three">
+          <span class="intro-index">03 &nbsp; / &nbsp; ENERGY IN TRANSFER</span>
+          <h2 class="intro-hero tight">K <span class="outline">↔</span> U</h2>
+          <div class="intro-energy"><span>운동 에너지</span><span class="arrow">⇄</span><span>위치 에너지</span></div>
+          <div class="intro-energy-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <p class="intro-subtitle">형태는 바뀌어도, 역학적 에너지는 보존된다</p>
+          <span class="intro-orbit" aria-hidden="true"></span>
+        </section>
+        <section class="intro-scene intro-scene-four">
+          <div class="intro-final-mark" aria-hidden="true">진</div>
+          <h2 class="intro-final-title">진동 연구소</h2>
+          <p class="intro-final-sub">MECHANICS &nbsp; IN &nbsp; MOTION</p>
+        </section>
+        <div class="intro-meta intro-meta-bottom"><span>심화 물리&nbsp; / &nbsp;I. 역학 탐구</span><span>F = −kx&nbsp;&nbsp; · &nbsp;&nbsp;E = K + U&nbsp;&nbsp; · &nbsp;&nbsp;T = 2π√(l/g)</span></div>
+        <div class="intro-progress" aria-hidden="true"></div>
+      </div>
+    </div>
+    <script>
+      (() => {
+        const W = 10, H = 20;
+        const shapes = {
+          I: [[1,1,1,1]], O: [[1,1],[1,1]], T: [[0,1,0],[1,1,1]],
+          S: [[0,1,1],[1,1,0]], Z: [[1,1,0],[0,1,1]],
+          J: [[1,0,0],[1,1,1]], L: [[0,0,1],[1,1,1]]
+        };
+        const colors = { I: "#45d7e8", O: "#f5c84b", T: "#b18cff", S: "#72dc91", Z: "#ff7187", J: "#6497ff", L: "#ff9d59" };
+        const concepts = [
+          { title: "복원력", formula: "F = −kx", copy: "용수철의 힘은 변위 x와 반대 방향으로 작용해 물체를 평형 위치로 되돌립니다. k는 용수철 상수입니다." },
+          { title: "용수철의 주기", formula: "T = 2π√(m/k)", copy: "질량 m이 커지면 진동이 느려져 주기가 길어지고, 용수철 상수 k가 커지면 주기가 짧아집니다." },
+          { title: "에너지 보존", formula: "E = K + U = ½kA²", copy: "마찰이 없으면 운동 에너지 K와 탄성 위치 에너지 U는 서로 바뀌지만 역학적 에너지 E는 일정합니다." },
+          { title: "단진자의 주기", formula: "T = 2π√(l/g)", copy: "작은 진폭에서 주기는 실의 길이 l과 중력가속도 g로 정해지며, 추의 질량에는 관계없습니다." },
+          { title: "사이클로이드", formula: "브라키스토크론 · 등시곡선", copy: "중력 아래 두 점을 가장 빨리 잇는 경로는 직선이 아니라 사이클로이드입니다. 사이클로이드 진자는 등시성을 가집니다." }
+        ];
+        let conceptIndex = 0;
+        function renderConcept() {
+          const concept = concepts[conceptIndex];
+          document.getElementById("concept-count").textContent = `${String(conceptIndex + 1).padStart(2, "0")} / ${String(concepts.length).padStart(2, "0")}`;
+          document.getElementById("concept-title").textContent = concept.title;
+          document.getElementById("concept-formula").textContent = concept.formula;
+          document.getElementById("concept-copy").textContent = concept.copy;
+        }
+        const boardEl = document.getElementById("board");
+        const cells = [];
+        for (let i = 0; i < W * H; i++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.setAttribute("role", "gridcell");
+          boardEl.append(cell);
+          cells.push(cell);
+        }
+        let board, bag, queue, current, held, canHold, score, lines, level, running, paused, timer;
+        const bestKey = "blokpol-best";
+        const bestEl = document.getElementById("best");
+        const scoreEl = document.getElementById("score");
+        const overlay = document.getElementById("overlay");
+        const startButton = document.getElementById("start-button");
+        const overlayTitle = document.getElementById("overlay-title");
+        const overlayCopy = document.getElementById("overlay-copy");
+        const introOverlay = document.getElementById("intro-overlay");
+        let introTimer, resumeAfterIntro = false, introReturnFocus;
+        bestEl.textContent = Number(localStorage.getItem(bestKey) || 0).toLocaleString("ko-KR");
+
+        function closeIntro() {
+          if (introOverlay.hidden) return;
+          introOverlay.hidden = true;
+          introOverlay.classList.remove("is-playing");
+          clearTimeout(introTimer);
+          if (resumeAfterIntro && running && paused) togglePause();
+          resumeAfterIntro = false;
+          if (introReturnFocus && introReturnFocus.focus) introReturnFocus.focus();
+        }
+        function playIntro() {
+          introReturnFocus = document.activeElement;
+          resumeAfterIntro = Boolean(running && !paused);
+          if (resumeAfterIntro) togglePause();
+          introOverlay.hidden = false;
+          introOverlay.classList.remove("is-playing");
+          void introOverlay.offsetWidth;
+          introOverlay.classList.add("is-playing");
+          clearTimeout(introTimer);
+          introTimer = setTimeout(closeIntro, 15000);
+          document.getElementById("intro-close").focus();
+        }
+        function shuffledBag() {
+          const pieces = Object.keys(shapes);
+          for (let i = pieces.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
+          }
+          return pieces;
+        }
+        function nextType() {
+          if (!bag.length) bag = shuffledBag();
+          return bag.pop();
+        }
+        function makePiece(type) {
+          const matrix = shapes[type].map(row => row.slice());
+          return { type, matrix, x: Math.floor((W - matrix[0].length) / 2), y: 0 };
+        }
+        function refillQueue() {
+          while (queue.length < 4) queue.push(nextType());
+        }
+        function collides(piece, dx = 0, dy = 0, matrix = piece.matrix) {
+          for (let y = 0; y < matrix.length; y++) for (let x = 0; x < matrix[y].length; x++) {
+            if (!matrix[y][x]) continue;
+            const nx = piece.x + x + dx, ny = piece.y + y + dy;
+            if (nx < 0 || nx >= W || ny >= H || (ny >= 0 && board[ny][nx])) return true;
+          }
+          return false;
+        }
+        function spawn() {
+          refillQueue();
+          current = makePiece(queue.shift());
+          refillQueue();
+          canHold = true;
+          if (collides(current)) endGame();
+          draw();
+        }
+        function rotate(matrix) {
+          return matrix[0].map((_, x) => matrix.map(row => row[x]).reverse());
+        }
+        function move(dx, dy) {
+          if (!running || paused) return;
+          if (!collides(current, dx, dy)) {
+            current.x += dx;
+            current.y += dy;
+            draw();
+            return true;
+          }
+          if (dy > 0) lockPiece();
+          return false;
+        }
+        function hardDrop() {
+          if (!running || paused) return;
+          let distance = 0;
+          while (!collides(current, 0, 1)) { current.y++; distance++; }
+          score += distance * 2;
+          lockPiece();
+        }
+        function rotatePiece() {
+          if (!running || paused) return;
+          const rotated = rotate(current.matrix);
+          for (const kick of [0, -1, 1, -2, 2]) {
+            if (!collides(current, kick, 0, rotated)) {
+              current.x += kick;
+              current.matrix = rotated;
+              draw();
+              break;
+            }
+          }
+        }
+        function holdPiece() {
+          if (!running || paused || !canHold) return;
+          const type = current.type;
+          if (held) { current = makePiece(held); held = type; }
+          else { held = type; spawn(); }
+          canHold = false;
+          draw();
+        }
+        function lockPiece() {
+          for (let y = 0; y < current.matrix.length; y++) for (let x = 0; x < current.matrix[y].length; x++) {
+            if (!current.matrix[y][x]) continue;
+            const by = current.y + y, bx = current.x + x;
+            if (by < 0) { endGame(); return; }
+            board[by][bx] = current.type;
+          }
+          let cleared = 0;
+          for (let y = H - 1; y >= 0; y--) {
+            if (board[y].every(Boolean)) {
+              board.splice(y, 1);
+              board.unshift(Array(W).fill(null));
+              cleared++;
+              y++;
+            }
+          }
+          if (cleared) {
+            score += [0, 100, 300, 500, 800][cleared] * level;
+            lines += cleared;
+            level = Math.floor(lines / 10) + 1;
+            conceptIndex = (conceptIndex + 1) % concepts.length;
+            renderConcept();
+          }
+          updateStats();
+          spawn();
+          scheduleTick();
+        }
+        function updateStats() {
+          scoreEl.textContent = score.toLocaleString("ko-KR");
+          document.getElementById("level").textContent = String(level).padStart(2, "0");
+          document.getElementById("lines-label").textContent = `${lines}줄`;
+          const best = Number(localStorage.getItem(bestKey) || 0);
+          if (score > best) {
+            localStorage.setItem(bestKey, String(score));
+            bestEl.textContent = score.toLocaleString("ko-KR");
+          }
+        }
+        function updateOscillator(time) {
+          const phase = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : time / 1050;
+          const position = Math.cos(phase);
+          const potential = position * position;
+          const kinetic = 1 - potential;
+          document.getElementById("oscillator-mass").setAttribute("cx", String(120 + position * 48));
+          document.getElementById("potential-bar").style.width = `${potential * 100}%`;
+          document.getElementById("kinetic-bar").style.width = `${kinetic * 100}%`;
+          document.getElementById("potential-value").textContent = `${Math.round(potential * 100)}%`;
+          document.getElementById("kinetic-value").textContent = `${Math.round(kinetic * 100)}%`;
+          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) requestAnimationFrame(updateOscillator);
+        }
+        function draw() {
+          const view = board.map(row => row.slice());
+          let ghostY = current ? current.y : 0;
+          if (current) while (!collides({ ...current, y: ghostY }, 0, 1)) ghostY++;
+          if (current) {
+            for (let y = 0; y < current.matrix.length; y++) for (let x = 0; x < current.matrix[y].length; x++) {
+              if (!current.matrix[y][x]) continue;
+              const gx = current.x + x, gy = ghostY + y;
+              if (gy >= 0 && gy < H && !view[gy][gx]) view[gy][gx] = `${current.type}:ghost`;
+            }
+            for (let y = 0; y < current.matrix.length; y++) for (let x = 0; x < current.matrix[y].length; x++) {
+              if (!current.matrix[y][x]) continue;
+              const bx = current.x + x, by = current.y + y;
+              if (by >= 0 && by < H) view[by][bx] = current.type;
+            }
+          }
+          view.forEach((row, y) => row.forEach((type, x) => {
+            const cell = cells[y * W + x];
+            cell.className = "cell";
+            cell.style.removeProperty("--block-color");
+            if (type) {
+              const ghost = type.endsWith(":ghost");
+              cell.classList.add(ghost ? "ghost" : "filled");
+              cell.style.setProperty("--block-color", colors[ghost ? type.slice(0, -6) : type]);
+            }
+          }));
+          drawMini(document.getElementById("hold-preview"), held, 4, 4);
+          const nextEl = document.getElementById("next-preview");
+          nextEl.replaceChildren();
+          queue.slice(0, 3).forEach(type => {
+            const preview = document.createElement("div");
+            preview.className = "next-row";
+            drawMini(preview, type, 4, 4);
+            nextEl.append(preview);
+          });
+        }
+        function drawMini(container, type, width, height) {
+          container.replaceChildren();
+          const matrix = type ? shapes[type] : [];
+          for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+            const cell = document.createElement("div");
+            cell.className = "mini-cell";
+            if (matrix[y] && matrix[y][x]) {
+              cell.classList.add("filled");
+              cell.style.setProperty("--block-color", colors[type]);
+            }
+            container.append(cell);
+          }
+          if (container.id === "hold-preview") container.setAttribute("aria-label", type ? `${type} 블록` : "보관한 블록 없음");
+        }
+        function scheduleTick() {
+          clearTimeout(timer);
+          if (running && !paused) timer = setTimeout(() => {
+            if (move(0, 1)) scheduleTick();
+          }, Math.max(90, 800 - (level - 1) * 65));
+        }
+        function startGame() {
+          clearTimeout(timer);
+          board = Array.from({ length: H }, () => Array(W).fill(null));
+          bag = []; queue = []; current = null; held = null;
+          score = 0; lines = 0; level = 1; running = true; paused = false;
+          conceptIndex = 0;
+          renderConcept();
+          updateStats();
+          overlay.hidden = true;
+          overlayTitle.textContent = "탐구를 시작할까요?";
+          overlayCopy.innerHTML = "블록을 쌓아 진동의 원리를 발견해요.<br>줄을 지울 때마다 새 개념이 열립니다.";
+          startButton.textContent = "탐구 시작";
+          document.getElementById("pause-button").textContent = "일시정지";
+          spawn();
+          scheduleTick();
+        }
+        function endGame() {
+          running = false;
+          clearTimeout(timer);
+          overlayTitle.textContent = "게임 오버";
+          overlayCopy.innerHTML = `최종 점수 <strong>${score.toLocaleString("ko-KR")}</strong><br>다시 도전해볼까요?`;
+          startButton.textContent = "다시 도전";
+          overlay.hidden = false;
+        }
+        function togglePause() {
+          if (!running) return;
+          paused = !paused;
+          clearTimeout(timer);
+          document.getElementById("pause-button").textContent = paused ? "계속하기" : "일시정지";
+          if (paused) {
+            overlayTitle.textContent = "잠시 멈춤";
+            overlayCopy.textContent = "준비되면 게임을 이어가세요.";
+            startButton.textContent = "계속하기";
+            overlay.hidden = false;
+          } else {
+            overlay.hidden = true;
+            scheduleTick();
+          }
+        }
+        function action(name) {
+          if (name === "left") move(-1, 0);
+          else if (name === "right") move(1, 0);
+          else if (name === "down") move(0, 1);
+          else if (name === "rotate") rotatePiece();
+          else if (name === "drop") hardDrop();
+          else if (name === "hold") holdPiece();
+        }
+        document.addEventListener("keydown", event => {
+          const key = event.key.toLowerCase();
+          if (!introOverlay.hidden) {
+            if (key === "escape") closeIntro();
+            event.preventDefault();
+            return;
+          }
+          const handled = ["arrowleft", "arrowright", "arrowdown", "arrowup", " ", "c", "p", "a", "d", "s", "w"];
+          if (!handled.includes(key)) return;
+          event.preventDefault();
+          if (key === "p") { togglePause(); return; }
+          if (key === "arrowleft" || key === "a") action("left");
+          else if (key === "arrowright" || key === "d") action("right");
+          else if (key === "arrowdown" || key === "s") action("down");
+          else if (key === "arrowup" || key === "w") action("rotate");
+          else if (key === " ") action("drop");
+          else if (key === "c") action("hold");
+        });
+        document.getElementById("pause-button").addEventListener("click", togglePause);
+        document.getElementById("restart-button").addEventListener("click", startGame);
+        document.getElementById("intro-button").addEventListener("click", playIntro);
+        document.getElementById("intro-close").addEventListener("click", closeIntro);
+        document.getElementById("concept-next").addEventListener("click", () => {
+          conceptIndex = (conceptIndex + 1) % concepts.length;
+          renderConcept();
+        });
+        startButton.addEventListener("click", () => paused ? togglePause() : startGame());
+        document.querySelectorAll("[data-action]").forEach(button => button.addEventListener("pointerdown", event => {
+          event.preventDefault();
+          action(button.dataset.action);
+        }));
+        renderConcept();
+        requestAnimationFrame(updateOscillator);
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && !sessionStorage.getItem("vibration-lab-intro-played")) {
+          sessionStorage.setItem("vibration-lab-intro-played", "true");
+          setTimeout(playIntro, 250);
+        }
+      })();
+    </script>
+  </body>
+</html>
